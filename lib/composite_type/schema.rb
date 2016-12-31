@@ -108,7 +108,7 @@ module CompositeType
             return true
           when Many === et
             count = 0
-            while et === instance[i]
+            while i < instance.size && et === instance[i]
               i += 1
               count += 1
               break if et.max and count >= et.max
