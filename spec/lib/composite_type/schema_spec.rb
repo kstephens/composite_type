@@ -54,6 +54,22 @@ class CompositeType::Schema
           .to be_truthy
       end
 
+      it "handles nested structures" do
+        t = Schema[ { Many[Symbol] => [ OneOrMore[Integer] ] } ]
+        expect(t === { })
+          .to be_truthy
+        expect(t === { a: [ 1 ]})
+          .to be_truthy
+        expect(t === { a: [ 1, 2 ]})
+          .to be_truthy
+        expect(t === { a: []})
+          .to be_falsey
+        expect(t === { a: [1], b: [2, 3]})
+          .to be_truthy
+        expect(t === { a: [1], b: ["x"]})
+          .to be_falsey
+      end
+
       it "handles nested Schemas" do
         t1 = Schema[[ 1, Optional[Symbol] ]]
         t2 = Schema[{ Many[t1, 1, 2] => String }]

@@ -95,7 +95,7 @@ module CompositeType
 
     class OneOrMore < Many
       def initialize proto
-        super(proto, 1)
+        super(proto, 1, nil)
       end
     end
 
