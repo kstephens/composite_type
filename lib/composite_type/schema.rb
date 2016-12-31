@@ -65,10 +65,6 @@ module CompositeType
     class Many < Base
       attr_reader :min, :max
 
-      class << self
-        alias :[] :new
-      end
-
       def initialize proto, min = nil, max = nil
         @matcher = proto
         @min = min || 0
@@ -154,11 +150,7 @@ module CompositeType
             i += 1
           end
         end
-        if i_min
-          i <= instance.size
-        else
-          i == instance.size
-        end
+        i_min ? i <= instance.size : i == instance.size
       end
 
       def match_min_max instance, kt, vt, min, max
