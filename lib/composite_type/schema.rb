@@ -75,54 +75,8 @@ module CompositeType
     end
 
     class EnumerableType < Base
-      def initialize proto
-        @matcher = proto
-        compile!
-      end
-
-      def compile!
-        matchers = [ ]
-        last = lambda do | instance, i |
-          i == instance.size
-        end
-        i = 0
-        @matcher.each do | et |
-          case
-          when Ellipsis == et
-            last = lambda do | instance, i |
-              true
-            end
-          when Optional === et
-            matchers << lambda do | instance, i |
-              if et === instance[i]
-                i += 1
-              end
-              i
-            end
-          else
-            matchers << lambda do | instance, i |
-              i < instance.size && et === instance[i] && i + 1
-            end
-          end
-        end
-        matchers.push last
-        @proc = lambda do | instance |
-          i = 0
-          matchers.each do | f |
-            unless i = f.call(instance, i)
-              return false
-            end
-          end
-          true
-        end
-        ap(matchers: matchers)
-        self
-      end
-
       def === instance
         return false unless Enumerable === instance
-        return @proc.call(instance) if @proc
-
         i = 0
         @matcher.each do | et |
           case
