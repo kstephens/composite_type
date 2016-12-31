@@ -156,7 +156,7 @@ class Module
     end
   end
 
-  class NegativeType < CompositeType
+  class InverseType < CompositeType
     def === x
        ! (@_t[0] === x)
     end
@@ -184,12 +184,12 @@ class Module
   # Array.of(~ NilClass)
   def ~@
     case
-    when x = NegativeType::INVERSE_MAP[self]
+    when x = InverseType::INVERSE_MAP[self]
       x
-    when self.is_a?(NegativeType)
+    when self.is_a?(InverseType)
       self._t.first
     else
-      NegativeType.new_cached(self)
+      InverseType.new_cached(self)
     end
   end
 end
@@ -227,7 +227,7 @@ module NonPositive
   def self.=== x
     x <= 0 rescue nil
   end
-  Module::NegativeType.inverse(self, Positive)
+  Module::InverseType.inverse(self, Positive)
 end
 
 # Objects that are Numericlike and >= 0.
@@ -235,7 +235,12 @@ module NonNegative
   def self.=== x
     x >= 0 rescue nil
   end
-  Module::NegativeType.inverse(self, Negative)
+  Module::InverseType.inverse(self, Negative)
+end
+
+# Objects that behave like Hash.
+module HashLike
+  ::Hash.send(:include, self)
 end
 
 # Objects that can do IO.
