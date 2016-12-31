@@ -1,5 +1,9 @@
 module CompositeType
   module ModuleExtensions
+    def self.install! target = ::Module
+      target.send(:include, self)
+    end
+
     # Constructs a type of that matches an Enumerable with an element type.
     #
     # Array.of(String)

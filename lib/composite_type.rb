@@ -4,6 +4,6 @@ end
 
 require 'composite_type/type'
 require 'composite_type/module_extensions'
-::Module.send(:include, CompositeType::ModuleExtensions)
+CompositeType::ModuleExtensions.install!
 require 'composite_type/numeric'
 
