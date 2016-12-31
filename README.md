@@ -2,12 +2,9 @@
 
 Composite Types and Schema for Ruby
 
+Modules (and the subclass Class) are often used as pattern matchers.
+
 ## Usage
-
-Composite Types can be constructed to match deeper data structures:
-
-    h = { "a" => 1, "b" => :symbol }
-    Hash.of(String.with(Integer|Symbol)) === h  # => true
 
 Defining types through Modules:
 
@@ -16,34 +13,60 @@ Defining types through Modules:
         Integer === x and x.even?
       end
     end
-    Array.of(Even) === [ 2, 4, 10 ]
+    Even === 2  # => true
+    Even === 3  # => false
+
+### Module Extensions
+
+Logical operators: #|, #&, #~ compose types logically:
+
+    (String | Symbol)    === :a   # => true
+    (String | Symbol)    === "a"  # => true
+    (String | Symbol)    === 1    # => false
+    (Positive & Integer) ===  1   # => true
+    (Positive & Integer) === -2   # => false
+    (~ NilClass) === 1            # => true
+    (~ NilClass) === nil          # => false
 
 Composite types create dynamic Modules that define the #=== pattern matching operator.
-Thus composite types can be used in "case when" clauses:
+
+Thus composite types can be used in "case" clauses:
+
+    Odd = ~ Even
+    case x
+    when 0    then "zero"
+    when Odd  then "odd"
+    when Even then "even"
+    end
+
+Composite types are cached indefinitely, therefore anonymous Modules cannot be composed.
+
+### Schema
+
+Provides a basic library to interpret a Ruby data structure as a matchable schema:
+
+   schema = Schema[ { Many[Symbol] => String } ]
+   schema === { a: "b" }   # => true
+   schema === { }          # => true
+   schema === { 1 => 2 }   # => false
+
+   schema = Schema[ { OneOrMore[Symbol] => String } ]
+   schema === { a: "b" }   # => true
+   schema === { }          # => false
+
+### Basic Data Structures
+ 
+Composite Types can be constructed to match data structures:
+
+    h = { "a" => 1, "b" => :symbol }
+    Hash.of(String.with(Integer|Symbol)) === h  # => true
 
     case h
     when Hash.of(String.with(Users))  ...
     when Hash.of(Symbol.with(Object)) ...
     end
 
-Logical operators: #|, #&, #~ are supported:
-
-    a = [ 1, 2, 3 ]
-    Array.of(Positive & Integer) === a   # => true
-    Array.of(~ NilClass) === a           # => true
-    
-    b = [ 1, -2, 3 ]
-    Array.of(Positive & Integer) === b   # => false
-
-    c = [ 1, 1.5, 3 ]
-    Array.of(Positive & Integer) === c   # => false
-
-    d = [ 1, nil, 3 ]
-    Array.of(~ NilClass) === d           # => false
-
-Composite types are cached indefinitely, therefore anonymous Modules cannot be composed.
-
-See spec/lib/composite_type_spec.rb for more examples.
+See spec/lib/**/_spec.rb for more examples.
 
 ## Installation
 
