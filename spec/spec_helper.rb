@@ -1,7 +1,5 @@
-gem 'pry'
 require 'pry'
-
-gem 'simplecov'
+require 'awesome_print'
 require 'simplecov'
 SimpleCov.start do
   add_filter "spec/"
@@ -12,3 +10,5 @@ RSpec.configure do |config|
   config.mock_with :rspec
   config.order = "random"
 end
+
+$break = 0

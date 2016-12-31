@@ -1,6 +1,6 @@
 # CompositeType
 
-Composite Types for Ruby
+Composite Types and Schema for Ruby
 
 ## Usage
 
@@ -18,7 +18,7 @@ Defining types through Modules:
     end
     Array.of(Even) === [ 2, 4, 10 ]
 
-Composite types create dynamic Modules that redefine the #=== pattern matching operator.
+Composite types create dynamic Modules that define the #=== pattern matching operator.
 Thus composite types can be used in "case when" clauses:
 
     case h
