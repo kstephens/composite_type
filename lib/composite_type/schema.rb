@@ -65,10 +65,21 @@ module CompositeType
     class Many < Base
       attr_reader :min, :max
 
-      def initialize proto, min = nil, max = nil
+      def initialize proto, *args
         @matcher = proto
-        @min = min || 0
-        @max = max
+        case args.size
+        when 0
+          @min = 0
+          @max = nil
+        when 1
+          @min = @max = (args[0] || 0)
+        when 2
+          @min , @max = args
+        else
+          raise ArgumentError, "wrong number of arguments (given #{args.size}, expect 0..2)"
+        end
+        @min = 0   if @min == :*
+        @max = nil if @max == :*
       end
 
       def === instance
