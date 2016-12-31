@@ -131,5 +131,20 @@ module CompositeType
     end
     inverse!(Object, Void)
   end
- 
+
+  # Objects that behave like Hash.
+  module HashLike
+    ::Hash.send(:include, self)
+  end
+
+  # Objects that can do IO.
+  #
+  # Note: IO and StringIO do not share a common ancestor Module
+  # that distingushes them as being capable of "IO".
+  # So we create one here -- devdriven.com 2013/11/14
+  require 'stringio'
+  module IOable
+    ::IO.send(:include, self)
+    ::StringIO.send(:include, self)
+  end
 end

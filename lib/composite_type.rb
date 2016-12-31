@@ -7,11 +7,6 @@ require 'composite_type/module_extensions'
 ::Module.send(:include, CompositeType::ModuleExtensions)
 require 'composite_type/numeric'
 
-# Objects that behave like Hash.
-module HashLike
-  ::Hash.send(:include, self)
-end
-
 # Objects that can do IO.
 #
 # Note: IO and StringIO do not share a common ancestor Module
