@@ -53,6 +53,25 @@ class CompositeType::Schema
         expect(t === {a: 1, c: 3})
           .to be_truthy
       end
+
+      it "handles nested Schemas" do
+        t1 = Schema[[ 1, Optional[Symbol] ]]
+        t2 = Schema[{ Many[t1, 1, 2] => String }]
+        expect(t2 === { })
+          .to be_falsey
+        expect(t2 === { [1] => "a" })
+          .to be_truthy
+        expect(t2 === { [1, :b] => "a" })
+          .to be_truthy
+        expect(t2 === { [1] => "a", [1, :b] => "b" })
+          .to be_truthy
+        expect(t2 === { [1] => "a", [1, :b] => "b",  [1, :c] => "c" })
+          .to be_falsey
+        expect(t2 === { [1, :b, :c] => "a" })
+          .to be_falsey
+        expect(t2 === { [1, :b] => [ ] })
+          .to be_falsey
+      end
     end
 
     describe Many do

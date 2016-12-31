@@ -2,7 +2,7 @@ require 'composite_type'
 
 module CompositeType
   # A declarative matching schema.
-  class Schema
+  class Schema < Module
     attr_accessor :proto, :match
     class << self
       alias :[] :new
@@ -139,16 +139,16 @@ module CompositeType
             else
               return false
             end
+          when Literal === kt
+            kt = kt.matcher
+            return false unless instance.key?(kt) && vt === instance[kt]
+            i += 1
           when Module === kt
             if count = match_min_max(instance, kt, vt, 1, 2) and count == 1
               i += count
             else
               return false
             end
-          when Literal === kt
-            kt = kt.matcher
-            return false unless instance.key?(kt) && vt === instance[kt]
-            i += 1
           else
             return false unless instance.key?(kt) && vt === instance[kt]
             i += 1
