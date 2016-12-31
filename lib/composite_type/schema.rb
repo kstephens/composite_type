@@ -122,8 +122,8 @@ module CompositeType
       def === instance
         return false unless Enumerable === instance
         return @proc.call(instance) if @proc
+
         i = 0
-        matches = 0
         @matcher.each do | et |
           case
           when Ellipsis == et
@@ -131,15 +131,13 @@ module CompositeType
           when Optional === et
             if et === instance[i]
               i += 1
-              matches += 1
             end
           else
             return false unless i < instance.size && et === instance[i]
-            matches += 1
             i += 1
           end
         end
-        matches == instance.size
+        i == instance.size
       end
     end
 
