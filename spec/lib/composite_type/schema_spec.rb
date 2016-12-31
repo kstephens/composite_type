@@ -5,9 +5,9 @@ class CompositeType::Schema
   Schema = self
   describe self do
     before { $break = 0 }
+    subject { Schema }
 
     context ".[]" do
-      subject { Schema }
       it "constructs Literal values" do
         t = subject[nil]
         expect(t === nil)    .to be_truthy
@@ -21,14 +21,24 @@ class CompositeType::Schema
         t = subject[Object]
         expect(t.match) .to eq Object
       end
-      it "constructs EnumerableTypes" do
+      it "constructs EnumerableType" do
         t = subject[[1, Symbol, 3]]
         expect(t === [1, :a, 3])
           .to be_truthy
         expect(t === true)
           .to be_falsey
       end
-      it "construct HashType" do
+      it "constructs HashType" do
+        t = subject[{Symbol => 1}]
+        expect(t === nil)
+          .to be_falsey
+        expect(t === { })
+          .to be_falsey
+        expect(t === { a: 1 })
+          .to be_truthy
+        expect(t === { a: 2 })
+          .to be_falsey
+
         t = subject[{:a => Numeric, Optional[:b] => String, Ellipsis => Object}]
         expect(t === nil)
           .to be_falsey
@@ -39,13 +49,93 @@ class CompositeType::Schema
         expect(t === {a: 1, b: "s", c: 3})
           .to be_truthy
         expect(t === {a: 1, b: 2, c: 3})
-          .to be_falsey
+          .to be_truthy
         expect(t === {a: 1, c: 3})
           .to be_truthy
       end
     end
 
-    context Optional do
+    describe Many do
+      context "in Enumerable" do
+        context "[Module]" do
+          it "matches zero or more" do
+            t = subject[[Many[Symbol], Many[Integer]]]
+            expect(t === [ ])
+              .to be_truthy
+            expect(t === [ :a, :b, :c ])
+              .to be_truthy
+            expect(t === [ 1, 2, 3 ])
+              .to be_truthy
+            expect(t === [ :a, :b, :c, 1, 2, 3 ])
+              .to be_truthy
+            expect(t === [ 1, 2, 3, :a, :b, :c ])
+              .to be_falsey
+            expect(t === [ :a, "sd", 1 ])
+              .to be_falsey
+          end
+        end
+        context "[Module,1,2]" do
+          it "matches zero or more" do
+            t = subject[[Many[Symbol, 1, 2], Many[Integer, 1, 2]]]
+            expect(t === [ ])
+              .to be_falsey
+            expect(t === [ :a, 1 ])
+              .to be_truthy
+            expect(t === [ :a, :b, 1 ])
+              .to be_truthy
+            expect(t === [ :a, :b, 1, 2 ])
+              .to be_truthy
+            expect(t === [ :a, :b, :c, 1, 2 ])
+              .to be_falsey
+            expect(t === [ :a, :b, 1, 2, "asdf"])
+              .to be_falsey
+            expect(t === [ :a, :b, :c, 1, 2, 3 ])
+              .to be_falsey
+            expect(t === [ 1, 2, 3, :a, :b, :c ])
+              .to be_falsey
+            expect(t === [ :a, "sd", 1 ])
+              .to be_falsey
+          end
+        end
+      end
+      context "in Hash" do
+        context "[Module]" do
+          it "matches zero or more" do
+            t = subject[{ Many[Symbol] => Integer }]
+            expect(t === { })
+              .to be_truthy
+            expect(t === { a: 1 })
+              .to be_truthy
+            expect(t === { a: 1, b: 2 })
+              .to be_truthy
+            expect(t === { a: "str" })
+              .to be_falsey
+            expect(t === { a: 1, b: 2, "foo": :bar })
+              .to be_falsey
+          end
+        end
+        context "[Module,1,2]" do
+          it "matches zero or more" do
+            t = subject[{ Many[Symbol, 1, 2] => Integer }]
+            expect(t === { })
+              .to be_falsey
+            expect(t === { a: 1 })
+              .to be_truthy
+            expect(t === { a: 1, b: 2 })
+              .to be_truthy
+            expect(t === { a: 1, b: 2, c: 3 })
+              .to be_falsey
+            expect(t === { a: "str" })
+              .to be_falsey
+            expect(t === { a: 1, b: 2, "foo": :bar })
+              .to be_falsey
+          end
+        end
+      end
+
+    end
+
+    describe Optional do
       it "matches" do
         expect( Optional[:a] === :a ) .to be_truthy
         expect( Optional[:b] === :a ) .to be_falsey
@@ -59,6 +149,7 @@ class CompositeType::Schema
           [ ],
           [ 1 ],
           [ 1, 2 ],
+          [ 1, 2, Module ],
         ]
         EXAMPLES.each do | proto_ |
           context "#{proto_.inspect}" do
@@ -166,7 +257,7 @@ class CompositeType::Schema
             expect( subject === { a: :b } )
               .to be_falsey
             expect( subject === { a: 1, b: 2 } )
-              .to be_truthy
+              .to be_falsey
           end
         end
 
@@ -179,11 +270,18 @@ class CompositeType::Schema
               .to be_truthy
             expect( h === { a: "str"} )
               .to be_falsey
+            expect( h === { a: 1, b: 2 } )
+              .to be_falsey
+
             h = HashType[Optional[:a] => Numeric, b: 2]
             expect( h === { a: 1, b: 2 } )
               .to be_truthy
             expect( h === { b: 2 } )
               .to be_truthy
+            expect( h === { a: 2, b: 3 } )
+              .to be_falsey
+            expect( h === { b: 3 } )
+              .to be_falsey
             expect( h === { b: 2, c: 2 } )
               .to be_falsey
           end

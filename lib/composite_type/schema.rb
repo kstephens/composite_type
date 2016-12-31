@@ -62,9 +62,33 @@ module CompositeType
       end
     end
 
-    class Optional < Base
+    class Many < Base
+      attr_reader :min, :max
+
+      class << self
+        alias :[] :new
+      end
+
+      def initialize proto, min = nil, max = nil
+        @matcher = proto
+        @min = min || 0
+        @max = max
+      end
+
       def === instance
         @matcher === instance
+      end
+    end
+
+    class Optional < Many
+      def initialize proto
+        super(proto, 0, 1)
+      end
+    end
+
+    class OneOrMore < Many
+      def initialize proto
+        super(proto, 1)
       end
     end
 
@@ -82,10 +106,14 @@ module CompositeType
           case
           when Ellipsis == et
             return true
-          when Optional === et
-            if et === instance[i]
+          when Many === et
+            count = 0
+            while et === instance[i]
               i += 1
+              count += 1
+              break if et.max and count >= et.max
             end
+            return false unless count >= et.min
           else
             return false unless i < instance.size && et === instance[i]
             i += 1
@@ -98,40 +126,50 @@ module CompositeType
     class HashType < EnumerableType
       def === instance
         return false unless HashLike === instance
-        matches_min = false
-        matches = 0
-        binding.pry if ($break -= 1) > 0
+        i_min = false
+        i = 0
+        # binding.pry if ($break -= 1) > 0
         @matcher.each do | kt, vt |
           case
           when Ellipsis == kt
-            matches_min = true
-          when Optional === kt
-            matches += instance.count do | k, v |
-              if kt === k
-                return false unless vt === v
-                true
-              end
+            i_min = true
+          when Many === kt
+            if count = match_min_max(instance, kt, vt, kt.min, kt.max)
+              i += count
+            else
+              return false
             end
-          when Module === kt && Module === vt
-            return false if instance.empty?
-            instance.each do | k, v |
-              return false unless kt === k && vt === v
-              matches += 1
+          when Module === kt
+            if count = match_min_max(instance, kt, vt, 1, 2) and count == 1
+              i += count
+            else
+              return false
             end
           when Literal === kt
             kt = kt.matcher
             return false unless instance.key?(kt) && vt === instance[kt]
-            matches += 1
+            i += 1
           else
             return false unless instance.key?(kt) && vt === instance[kt]
-            matches += 1
+            i += 1
           end
         end
-        if matches_min
-          matches <= instance.size
+        if i_min
+          i <= instance.size
         else
-          matches == instance.size
+          i == instance.size
         end
+      end
+
+      def match_min_max instance, kt, vt, min, max
+        count = 0
+        instance.each do | k, v |
+          if kt === k && vt === v
+            count += 1
+            break if max and count >= max
+          end
+        end
+        count >= min && count
       end
     end
   end
