@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = "composite_type"
   spec.version       = CompositeType::VERSION
   spec.authors       = ["Kurt Stephens"]
-  spec.email         = ["ks.github@kurtstephens.com"]
+  spec.email         = ["gitb@kurtstephens.com"]
   spec.description   = %q{Composite Types for Ruby}
   spec.summary       = %q{Array.of(String)}
   spec.homepage      = "https://github.com/kstephens/composite_type"
@@ -18,9 +18,12 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "~> 1.3"
-  spec.add_development_dependency "simplecov", "~> 0.8"
-  spec.add_development_dependency "pry", "~> 0.10"
+  spec.add_development_dependency "bundler", "~> 1.13"
+  spec.add_development_dependency "rake", "~> 12.0"
+  spec.add_development_dependency "simplecov", "~> 0.12"
+  spec.add_development_dependency "awesome_print", "~> 1.7"
+  spec.add_development_dependency "pry-byebug", "~> 3.4"
+  spec.add_development_dependency "rspec", "~> 3.5"
   spec.add_development_dependency "guard", "~> 2.14"
   spec.add_development_dependency "guard-rspec", "~> 4.7"
 end
