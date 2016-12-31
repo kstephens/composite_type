@@ -86,7 +86,7 @@ class Module
 
   class DisjunctiveType < CompositeType
     def === x
-       @_t[0] === x or @_t[1] === x
+      @_t[0] === x or @_t[1] === x
     end
 
     def >= t
@@ -123,7 +123,7 @@ class Module
 
   class ConjunctiveType < CompositeType
     def === x
-       @_t[0] === x and @_t[1] === x
+      @_t[0] === x and @_t[1] === x
     end
 
     def >= t
