@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'composite_type'
 
-describe Module::CompositeType do
+describe CompositeType do
   module A; end
   module B; end
   module C; include A; end
@@ -21,8 +21,8 @@ describe Module::CompositeType do
     }.to raise_error(Module::CompositeType::Error, "cannot create CompositeType from unamed object")
   end
 
-  context Module::Void do
-    subject { Module::Void }
+  context CompositeType::Void do
+    subject { CompositeType::Void }
     it "does not match anything" do
       expect(subject === Object.new) .to be_falsey
     end
@@ -156,8 +156,8 @@ describe Module::CompositeType do
     end
 
     it "rewrites inverse types" do
-      expect(~ Object)       .to equal(Module::Void)
-      expect(~ Module::Void) .to equal(Object)
+      expect(~ Object)       .to equal(CompositeType::Void)
+      expect(~ CompositeType::Void) .to equal(Object)
       expect(~ Negative)     .to equal(NonNegative)
       expect(~ NonNegative)  .to equal(Negative)
     end
