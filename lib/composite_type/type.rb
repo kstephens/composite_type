@@ -21,6 +21,10 @@ module CompositeType
   end
 
   class ContainerType < Type
+    def self.[] t1, t2
+      new_cached(t1, t2)
+    end
+
     def === x
       @_t[0] === x and x.all?{|e| @_t[1] === e }
     end
@@ -36,6 +40,10 @@ module CompositeType
   end
 
   class EnumeratedType < Type
+    def self.[] types
+      new_cached(*types)
+    end
+
     def === x
       Enumerable === x and
         @_t.size == x.size and
@@ -56,6 +64,19 @@ module CompositeType
   end
 
   class DisjunctiveType < Type
+    def self.[] t0, t
+      case
+      when t <= t0
+        t0
+      when t0 <= t
+        t
+      else
+        a, b = t0, t
+        a, b = b, a if a.to_s > b.to_s
+        new_cached(a, b)
+      end
+    end
+
     def === x
       @_t[0] === x or @_t[1] === x
     end
@@ -77,6 +98,17 @@ module CompositeType
   end
 
   class ConjunctiveType < Type
+    def self.[] t0, t
+      case
+      when t0.equal?(t)
+        t0
+      else
+        a, b = t0, t
+        a, b = b, a if a.to_s > b.to_s
+        new_cached(a, b)
+      end
+    end
+
     def === x
       @_t[0] === x and @_t[1] === x
     end
@@ -110,6 +142,17 @@ module CompositeType
   Void = Class.new.extend(VoidType)
 
   class InverseType < Type
+    def self.[] t
+      case
+      when x = INVERSE_MAP[t]
+        x
+      when t.is_a?(self)
+        t._t.first
+      else
+        new_cached(t)
+      end
+    end
+
     def === x
        ! (@_t[0] === x)
     end

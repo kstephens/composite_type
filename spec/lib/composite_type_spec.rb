@@ -18,7 +18,7 @@ describe CompositeType do
   it "should fail for anonymous Modules" do
     expect {
       Module.new | String
-    }.to raise_error(Module::CompositeType::Error, "cannot create CompositeType from unamed object")
+    }.to raise_error(CompositeType::Error, "cannot create CompositeType from unamed object")
   end
 
   context CompositeType::Void do
