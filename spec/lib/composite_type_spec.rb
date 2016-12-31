@@ -1,7 +1,16 @@
 require 'spec_helper'
 require 'composite_type'
+require 'composite_type/numeric_types'
 
-describe CompositeType do
+module CompositeType
+  describe CompositeType do
+    include NumericTypes
+    NumericLike = NumericTypes::NumericLike
+    Positive    = NumericTypes::Positive
+    NonPositive = NumericTypes::NonPositive
+    Negative    = NumericTypes::Negative
+    NonNegative = NumericTypes::NonNegative
+
   module A; end
   module B; end
   module C; include A; end
@@ -35,8 +44,8 @@ describe CompositeType do
     end
   end
 
-  context Numericlike do
-    subject { Numericlike }
+  context NumericLike do
+    subject { NumericLike }
     let(:numeric_like) do
       Class.new do
         def to_numeric; -1234; end
@@ -123,7 +132,7 @@ describe CompositeType do
     end
 
     it "does not reduce if A and B are disjunctive" do
-      expect((Numericlike | Numeric).to_s) .to eq("(Numeric|Numericlike)")
+      expect((NumericLike | Numeric).to_s) .to eq("(CompositeType::NumericTypes::NumericLike|Numeric)")
       expect((String | Array).to_s)        .to eq("(Array|String)")
     end
   end
@@ -261,3 +270,5 @@ describe CompositeType do
     end
   end
 end
+end
+
