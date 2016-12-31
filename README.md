@@ -45,14 +45,14 @@ Composite types are cached indefinitely, therefore anonymous Modules cannot be c
 
 Provides a basic library to interpret a Ruby data structure as a matchable schema:
 
-   schema = Schema[ { Many[Symbol] => String } ]
-   schema === { a: "b" }   # => true
-   schema === { }          # => true
-   schema === { 1 => 2 }   # => false
+    schema = Schema[ { Many[Symbol] => String } ]
+    schema === { a: "b" }   # => true
+    schema === { }          # => true
+    schema === { 1 => 2 }   # => false
 
-   schema = Schema[ { OneOrMore[Symbol] => String } ]
-   schema === { a: "b" }   # => true
-   schema === { }          # => false
+    schema = Schema[ { OneOrMore[Symbol] => String } ]
+    schema === { a: "b" }   # => true
+    schema === { }          # => false
 
 ### Basic Data Structures
  
